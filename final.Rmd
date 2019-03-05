@@ -5,7 +5,7 @@ output: html_notebook
 
 ```{r}
 #(1) 請讀取final資料夾下的lvr_prices檔案 [5分]
-load("../final/lvr_prices.RData")
+load("../riii/final/lvr_prices_big5.RData")
 
 ```
 
@@ -32,7 +32,7 @@ lvr_prices$finish_ymd <- ymd(lvr_prices$finish_ymd,tz = "Asia/Taipei")
 house <- lvr_prices[lvr_prices$city_land_type == "住",]
 house <- house[house$total_price>0 , ]
 house <- house[house$building_sqmeter>0,]
-house <- house[!is.na(ymd(house$finish_ymd)),]
+house <- house[!is.na(ymd(house$finish_ymd)) ,]
   
   
   
@@ -79,6 +79,9 @@ for (i in 1:length(table(house$area))){
 }
 price_per_sqmeter_area
 
+# ======= =========
+
+
 ```
 
 ```{r}
@@ -105,7 +108,7 @@ house$building_age <- as.integer(round(house$building_age / 365,0))
 #     並將house資料集和house_danger資料集以left outer join方式join起來，
 #     存回house變數中 [5分]
 
-load("~/Workplace/R/final/house_danger.RData")
+load("../riii/final/house_danger.RData")
 house <- merge(x=house,y=house_danger,by = "ID",all.x = T)
 
 
@@ -165,12 +168,13 @@ confusionMatrix(table(pre,testset$danger))
 ```{r}
 #(17) 請繪製出此模型的ROC曲線，並計算其AUC [8分]
 
-pred = predict(house.rp, newdata = testset, type = "prob")[,1]
+pred = predict(house.rp, newdata = testset, type = "prob")
+pred = pred[,'YES']
 pred.rocr <- prediction(pred, testset$danger)
 perf = performance(pred.rocr, measure = "auc", x.measure = "cutoff")
 perf.tpr <- performance(pred.rocr, measure = "tpr", x.measure = "fpr")
 plot(perf.tpr, main=paste("AUC : ", (perf@y.values)))
 
-
+perf@y.values
 
 ```
